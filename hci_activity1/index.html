@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to KRC</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            --cream: #fff9ef;
+            --pastel-shadow-penk: #ffc8cb;
+            --pastel-penk: #ffaaa7;
+            --pastel-teal-green: #b1d5cc;
+            --pastel-light-purple: #d5bfdd;
+        }
+
+
+        body {
+            font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #949493 0%, #d2abad 25%, #f9f4e8 50%, #a2c1b2 75%, #f9ba8e 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-container {
+            width: 380px;
+            height: 480px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 35px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1) inset;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.8) translateY(50px) rotateX(15deg);
+            opacity: 0;
+            transition: all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .phone-container.loaded {
+            transform: scale(1) translateY(0) rotateX(0deg);
+            opacity: 1;
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 8rem;
+            height: 8rem;
+            border-radius: 20%;
+            opacity: 0.4;
+            animation: enhancedFloat 6s ease-in-out infinite;
+            backdrop-filter: blur(2px);
+        }
+
+        .floating-element:nth-child(1) {
+            background: radial-gradient(circle, #d2abad60, #d2abad30);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            background: radial-gradient(circle, #f9ba8e60, #f9ba8e30);
+            top: 20%;
+            left: 80%;
+            animation-delay: 1s;
+        }
+
+        .floating-element:nth-child(3) {
+            background: radial-gradient(circle, #a2c1b260, #a2c1b230);
+            top: 70%;
+            left: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-element:nth-child(4) {
+            background: radial-gradient(circle, #94949360, #94949330);
+            top: 60%;
+            left: 85%;
+            animation-delay: 1.5s;
+        }
+
+        .floating-element:nth-child(5) {
+            background: radial-gradient(circle, #d2abad60, #d2abad30);
+            top: 40%;
+            left: 5%;
+            animation-delay: 0.5s;
+        }
+
+        .floating-element:nth-child(6) {
+            background: radial-gradient(circle, #f9ba8e60, #f9ba8e30);
+            top: 80%;
+            left: 75%;
+            animation-delay: 2.5s;
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            text-align: center;
+            transform: translateY(-30px);
+            opacity: 0;
+            transition: all 1s ease-out 0.3s;
+        }
+
+        .logo-container.loaded {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .title {
+            font-size: 26px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #d2abad, #f9ba8e, #a2c1b2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: textGradient 6s ease infinite;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0 15px 30px rgba(249, 186, 142, 0.4)) drop-shadow(0 0 20px rgba(210, 171, 173, 0.2));
+            transform: scale(1) rotate(0deg);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+
+        .logo.pulse {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 18px 30px;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            transform: translateX(-100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn:nth-child(even) {
+            transform: translateX(100px);
+        }
+
+        .btn.loaded {
+            transform: translateX(0) scale(1) rotateX(0deg);
+            opacity: 1;
+        }
+
+        .btn:nth-child(1).loaded {
+            transition-delay: 0.5s;
+        }
+
+        .btn:nth-child(2).loaded {
+            transition-delay: 0.6s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffc8cb, #ffaaa7);
+            box-shadow: 0 12px 24px #d2abad40, 0 0 0 1px rgba(255,255,255,0.1) inset;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #a7ccb8, #a7ccb8dd);
+            box-shadow: 0 12px 24px #a7ccb840, 0 0 0 1px rgba(255,255,255,0.1) inset;
+        }
+
+        .btn:hover {
+            transform: translateX(0) scale(1.08) rotateX(2deg) !important;
+        }
+
+        .btn:active {
+            transform: scale(0.95) !important;
+            transition: transform 0.1s ease !important;
+        }
+
+        .btn-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+        }
+
+        .btn:hover .btn-ripple {
+            animation: enhancedRipple 0.8s ease-out;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #d2abad, #f9ba8e, #a2c1b2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: textGradient 8s ease infinite;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1s ease-out 1.2s;
+        }
+
+        .footer.loaded {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .background-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .particle:nth-child(3n+1) { background: #d2abad; }
+        .particle:nth-child(3n+2) { background: #f9ba8e; }
+        .particle:nth-child(3n+3) { background: #a2c1b2; }
+
+        /* Keyframe animations */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes textGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-8px) rotate(2deg); }
+            50% { transform: translateY(-5px) rotate(-1deg); }
+            75% { transform: translateY(-12px) rotate(1deg); }
+        }
+
+        @keyframes enhancedFloat {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg) scale(1); opacity: 0.4; }
+            25% { transform: translateY(-25px) translateX(10px) rotate(90deg) scale(1.1); opacity: 0.6; }
+            50% { transform: translateY(-15px) translateX(-5px) rotate(180deg) scale(0.9); opacity: 0.3; }
+            75% { transform: translateY(-35px) translateX(15px) rotate(270deg) scale(1.2); opacity: 0.5; }
+        }
+
+        @keyframes enhancedRipple {
+            to { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 0.8; transform: scale(1) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Background particles -->
+        <div class="background-particles" id="particles"></div>
+        
+        <!-- Phone container -->
+        <div class="phone-container" id="phoneContainer">
+            <!-- Floating decorative circles -->
+            <div class="floating-elements">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+
+            <!-- Logo and Title -->
+<div class="logo-container" id="logoContainer">
+    <h1 class="title">Welcome to KRC</h1>
+    <!-- Load the external SVG -->
+    <img src="images/krc_logo.svg" alt="KRC Logo" class="logo" id="logo">
+</div>
+
+
+            <!-- Buttons -->
+            <div class="buttons-container">
+                <button class="btn btn-primary" onclick="handleGetStarted()">
+    <div class="btn-ripple"></div>
+    Get Started
+</button>
+                <button class="btn btn-secondary" onclick="handleLearnMore()">
+                    <div class="btn-ripple"></div>
+                    Learn More
+                </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer" id="footer">
+                © 2025 KRC. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let isLoaded = false;
+        let pulseAnimation = false;
+
+        // Initialize page
+        function init() {
+            createBackgroundParticles();
+            
+            // Trigger loading animations
+            setTimeout(() => {
+                isLoaded = true;
+                document.getElementById('phoneContainer').classList.add('loaded');
+                document.getElementById('logoContainer').classList.add('loaded');
+                document.getElementById('footer').classList.add('loaded');
+                
+                // Animate buttons
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(button => {
+                    button.classList.add('loaded');
+                });
+            }, 100);
+
+            // Set up logo pulse animation
+            setInterval(() => {
+                const logo = document.getElementById('logo');
+                logo.classList.add('pulse');
+                setTimeout(() => {
+                    logo.classList.remove('pulse');
+                }, 1000);
+            }, 3000);
+        }
+
+        // Create background particles
+        function createBackgroundParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animation = `sparkle ${3 + Math.random() * 4}s ease-in-out infinite`;
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+            
+        function handleGetStarted() {
+    window.location.href = "home.html"; // change "home.html" to your actual home page filename
+        }
+
+
+
+
+        function handleLearnMore() {
+            console.log('Learn More clicked!');
+            alert('You will be redirected to the Learn More page');
+            window.location.href = "learnmore.html"
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

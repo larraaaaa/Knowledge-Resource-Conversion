@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRC - Knowledge Resource Conversion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            --cream: #fff9ef;
+            --pastel-purple: #d2abad;
+            --pastel-orange: #f9ba8e;
+            --pastel-blue-green: #a7ccb8;
+            --pastel-gray-blue: #a2c1b2;
+            --pastel-shadow-penk: #ffc8cb;
+            --pastel-penk: #ffaaa7;
+            --pastel-teal-green: #b1d5cc;
+            --pastel-light-purple: #d5bfdd;
+        }
+
+        body {
+            font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--pastel-light-purple) 0%, var(--pastel-penk) 30%, var(--pastel-shadow-penk) 60%, var(--pastel-teal-green) 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Navigation Header */
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255,249,239,0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,249,239,0.3);
+            padding: 15px 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-orange));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.8);
+        }
+
+        .nav-stats {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-stat {
+            text-align: center;
+        }
+
+        .nav-stat-number {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--pastel-purple);
+        }
+
+        .nav-stat-label {
+            font-size: 0.7rem;
+            color: rgba(0,0,0,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Exit Button */
+        .exit-button {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .exit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,249,239,0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 320px;
+            border: 1px solid rgba(255,249,239,0.3);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.8);
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            font-size: 1rem;
+            color: rgba(0,0,0,0.7);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .modal-button-yes {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .modal-button-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+        }
+
+        .modal-button-no {
+            background: #17da89;
+            color: white;
+            box-shadow: 0 4px 12px rgba(162,193,178, 0.3);
+        }
+
+        .modal-button-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(162,193,178, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 40px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero-container {
+            background: rgba(255,249,239,0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,249,239,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .hero-logo-container {
+            flex-shrink: 0;
+        }
+
+        .hero-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(210,171,173, 0.3);
+            transition: transform 0.2s ease;
+            object-fit: contain;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .hero-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero-greeting {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--pastel-shadow-penk), var(--pastel-teal-green), var(--pastel-teal-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(0,0,0,0.7);
+            font-weight: 400;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .hero-time {
+            font-size: 0.95rem;
+            color: rgba(0,0,0,0.6);
+            font-weight: 400;
+        }
+
+        /* Categories Section */
+        .categories-section {
+            padding: 0 30px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .categories-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .categories-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.8);
+            margin-bottom: 12px;
+        }
+
+        .categories-subtitle {
+            font-size: 1.1rem;
+            color: rgba(0,0,0,0.6);
+        }
+
+        /* New Architecture - Category Groups */
+        .category-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 5px;
+            margin-bottom: 40px;
+        }
+
+        /* .category-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        } */
+
+        .category-group {
+            background: rgba(255,249,239,0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,249,239,0.3);
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .category-group-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .category-group-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .category-group-info h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.8);
+            margin-bottom: 5px;
+        }
+
+        .category-group-info p {
+            font-size: 0.9rem;
+            color: rgba(0,0,0,0.6);
+        }
+
+        .converters-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .converter-item {
+            background: rgba(255,255,255,0.6);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .converter-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .converter-item-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .converter-item-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(0,0,0,0.8);
+            margin-bottom: 8px;
+        }
+
+        .converter-item-uses {
+            font-size: 0.8rem;
+            color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .converter-description {
+            font-size: 0.7rem;
+            color: rgba(0,0,0,0.6);
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+
+        /* Color themes for groups */
+        .category-group:nth-child(1) .category-group-icon { 
+            background: #ffc8cb; 
+        }
+        .category-group:nth-child(2) .category-group-icon { 
+            background: #d5bfdd; 
+        }
+        .category-group:nth-child(3) .category-group-icon { 
+            background: #b1d5cc; 
+        }
+        .category-group:nth-child(4) .category-group-icon { 
+            background: #ffaaa7; 
+        }
+
+        /* Quick Access Section */
+        .quick-access {
+            background: rgba(255,249,239,0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,249,239,0.3);
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .quick-access-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .quick-access-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.8);
+            margin-bottom: 8px;
+        }
+
+        .quick-access-subtitle {
+            font-size: 0.9rem;
+            color: rgba(0,0,0,0.6);
+        }
+
+        .quick-access-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-item {
+            background: rgba(255,255,255,0.6);
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .quick-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .quick-item-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .quick-item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(0,0,0,0.8);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-stats {
+                gap: 15px;
+            }
+
+            .hero-section {
+                padding: 30px 20px;
+            }
+
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+                gap: 20px;
+            }
+
+            .hero-greeting {
+                font-size: 2.2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .categories-section {
+                padding: 0 20px 60px;
+            }
+
+            .category-groups {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .category-group {
+                padding: 25px 20px;
+            }
+
+            .converters-list {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .quick-access-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-container {
+                padding: 25px 15px;
+            }
+            
+            .hero-greeting {
+                font-size: 1.8rem;
+            }
+
+            .category-groups {
+                grid-template-columns: 1fr;
+            }
+
+            .converters-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-access-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal Overlay -->
+    <div id="exitModal" class="modal-overlay">
+        <div class="modal">
+            <h2 class="modal-title">Exit Confirmation</h2>
+            <p class="modal-message">Are you sure you want to exit?</p>
+            <div class="modal-buttons">
+                <button class="modal-button modal-button-yes" onclick="confirmExit()">Yes</button>
+                <button class="modal-button modal-button-no" onclick="closeModal()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <nav class="nav-header">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="hero-logo-container">
+                <img src="images/krc_logo.svg" alt="KRC Logo" class="hero-logo">
+            </div>
+                <div class="nav-title">Knowledge Resource Conversion</div>
+            </div>
+            
+            <div class="nav-stats">
+                <div class="nav-stat">
+                    <div class="nav-stat-number">14</div>
+                    <div class="nav-stat-label">Converters</div>
+                </div>
+                <div class="nav-stat">
+                    <div class="nav-stat-number">500+</div>
+                    <div class="nav-stat-label">Units</div>
+                </div>
+                <div class="nav-stat">
+                    <div class="nav-stat-number">99.9%</div>
+                    <div class="nav-stat-label">Accuracy</div>
+                </div>
+                <button class="exit-button" onclick="showExitModal()">Exit</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-logo-container">
+                <img src="images/krc_logo.svg" alt="KRC Logo" class="hero-logo">
+            </div>
+            <div class="hero-content">
+                <h1 class="hero-greeting" id="greetingTitle">Good Morning!</h1>
+                <p class="hero-subtitle">
+                    Welcome to Knowledge Resource Conversion. Choose a converter to transform your measurements with precision.
+                </p>
+                <div class="hero-time" id="currentTime"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="categories-header">
+            <h2 class="categories-title">Conversion Categories</h2>
+            <p class="categories-subtitle">Organized by type for easy navigation</p>
+        </div>
+
+        <div class="category-groups">
+            <!-- Physical Measurements -->
+            <div class="category-group">
+                <div class="category-group-header">
+                    <div class="category-group-icon">📏</div>
+                    <div class="category-group-info">
+                        <h3>Physical Measurements</h3>
+                        <p>Basic physical quantities and dimensions</p>
+                    </div>
+                </div>
+                <div class="converters-list">
+                    <div class="converter-item" onclick="openConverter('length')">
+                        <span class="converter-item-icon">📏</span>
+                        <div class="converter-item-title">Length</div>
+                        <p class="converter-description">Convert between meters, feet, 
+                    </div>
+                    <div class="converter-item" onclick="openConverter('area')">
+                        <span class="converter-item-icon">📐</span>
+                        <div class="converter-item-title">Area</div>
+                        <p class="converter-description">Convert square meters, acres, hectares, and more</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('volume')">
+                        <span class="converter-item-icon">🧊</span>
+                        <div class="converter-item-title">Volume</div>
+                        <p class="converter-description">Convert liters, gallons, cups, milliliters, and more</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('weight')">
+                        <span class="converter-item-icon">⚖️</span>
+                        <div class="converter-item-title">Weight</div>
+                        <p class="converter-description">Convert kilograms, pounds, ounces, stones, and other units</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Energy & Power -->
+            <div class="category-group">
+                <div class="category-group-header">
+                    <div class="category-group-icon">⚡</div>
+                    <div class="category-group-info">
+                        <h3>Energy & Power</h3>
+                        <p>Electrical and mechanical energy units</p>
+                    </div>
+                </div>
+                <div class="converters-list">
+                    <div class="converter-item" onclick="openConverter('energy')">
+                        <span class="converter-item-icon">⚡</span>
+                        <div class="converter-item-title">Energy</div>
+                        <p class="converter-description">Convert joules, calories, BTU, and kilowatt-hours</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('power')">
+                        <span class="converter-item-icon">🔌</span>
+                        <div class="converter-item-title">Power</div>
+                        <p class="converter-description">Convert watts, horsepower, kilowatts and others</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('pressure')">
+                        <span class="converter-item-icon">🌪️</span>
+                        <div class="converter-item-title">Pressure</div>
+                        <p class="converter-description">Convert bar, PSI, Pascal, atmosphere, and more</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('Frequency')">
+                        <span class="converter-item-icon">🔊</span>
+                        <div class="converter-item-title">Frequency</div>
+                        <p class="converter-description">Change values between different frequency measurements</p>>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motion & Environment -->
+            <div class="category-group">
+                <div class="category-group-header">
+                    <div class="category-group-icon">🏃‍♂️</div>
+                    <div class="category-group-info">
+                        <h3>Motion & Environment</h3>
+                        <p>Speed, time, temperature, and efficiency</p>
+                    </div>
+                </div>
+                <div class="converters-list">
+                    <div class="converter-item" onclick="openConverter('speed')">
+                        <span class="converter-item-icon">🏃‍♂️</span>
+                        <div class="converter-item-title">Speed</div>
+                        <p class="converter-description">Convert km/h, mph, m/s, and other speed units</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('time')">
+                        <span class="converter-item-icon">⏰</span>
+                        <div class="converter-item-title">Time</div>
+                        <p class="converter-description">Convert seconds, minutes, hours, days, and years</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('temperature')">
+                        <span class="converter-item-icon">🌡️</span>
+                        <div class="converter-item-title">Temperature</div>
+                        <p class="converter-description">Convert Celsius, Fahrenheit, and Kelvin temperatures</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('fuel')">
+                        <span class="converter-item-icon">⛽</span>
+                        <div class="converter-item-title">Fuel Economy</div>
+                        <p class="converter-description">Convert MPG, L/100km, and other fuel efficiency units</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Digital & Health -->
+            <div class="category-group">
+                <div class="category-group-header">
+                    <div class="category-group-icon">❤️‍🩹</div>
+                    <div class="category-group-info">
+                        <h3>Digital & Health</h3>
+                        <p>Data storage and health calculators</p>
+                    </div>
+                </div>
+                <div class="converters-list">
+                    <div class="converter-item" onclick="openConverter('storage')">
+                        <span class="converter-item-icon">💾</span>
+                        <div class="converter-item-title">Storage</div>
+                        <p class="converter-description">Convert bytes, KB, MB, GB, TB, and other data units</p>
+                    </div>
+                    <div class="converter-item" onclick="openConverter('bmi')">
+                        <span class="converter-item-icon">🏋️‍♀️</span>
+                        <div class="converter-item-title">BMI Calculator</div>
+                        <p class="converter-description">Calculate Body Mass Index and health indicators</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="quick-access">
+            <div class="quick-access-header">
+                <h3 class="quick-access-title">Most Popular</h3>
+                <p class="quick-access-subtitle">Quick access to frequently used converters</p>
+            </div>
+            <div class="quick-access-grid">
+                <div class="quick-item" onclick="openConverter('temperature')">
+                    <span class="quick-item-icon">🌡️</span>
+                    <div class="quick-item-title">Temperature</div>
+                </div>
+                <div class="quick-item" onclick="openConverter('length')">
+                    <span class="quick-item-icon">📏</span>
+                    <div class="quick-item-title">Length</div>
+                </div>
+                <div class="quick-item" onclick="openConverter('weight')">
+                    <span class="quick-item-icon">⚖️</span>
+                    <div class="quick-item-title">Weight</div>
+                </div>
+                <div class="quick-item" onclick="openConverter('storage')">
+                    <span class="quick-item-icon">💾</span>
+                    <div class="quick-item-title">Storage</div>
+                </div>
+                <div class="quick-item" onclick="openConverter('bmi')">
+                    <span class="quick-item-icon">🏋️‍♀️</span>
+                    <div class="quick-item-title">BMI</div>
+                </div>
+                <div class="quick-item" onclick="openConverter('speed')">
+                    <span class="quick-item-icon">🏃‍♂️</span>
+                    <div class="quick-item-title">Speed</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize the page
+        function init() {
+            updateGreeting();
+            updateCurrentTime();
+            
+            // Update time every minute
+            setInterval(updateCurrentTime, 60000);
+        }
+
+        // Update greeting based on time of day
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greetingElement = document.getElementById('greetingTitle');
+            
+            if (hour < 12) {
+                greetingElement.textContent = 'Good Morning!';
+            } else if (hour < 17) {
+                greetingElement.textContent = 'Good Afternoon!';
+            } else {
+                greetingElement.textContent = 'Good Evening!';
+            }
+        }
+
+        // Update current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        function openConverter(type) {
+            // Simple click feedback
+            const item = event.target.closest('.converter-item, .quick-item');
+            if (item) {
+                item.style.transform = 'scale(0.95) translateY(-2px)';
+                setTimeout(() => {
+                    item.style.transform = '';
+                }, 150);
+            }
+
+            // Navigate to converter page
+            setTimeout(() => {
+                window.location.href = type + ".html";
+            }, 150);
+        }
+
+        // Exit modal functions
+        function showExitModal() {
+            document.getElementById('exitModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('exitModal').style.display = 'none';
+        }
+
+        function confirmExit() {
+            window.location.href = 'index.html';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('exitModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

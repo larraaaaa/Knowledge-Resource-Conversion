@@ -1,0 +1,723 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KRC Area Converter</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            :root {
+            --cream: #fff9ef;
+            --pastel-shadow-penk: #ffc8cb;
+            --pastel-penk: #ffaaa7;
+            --pastel-teal-gren: #b1d5cc;
+            --pastel-light-purple: #d5bfdd;
+        }
+
+            body {
+                font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background: linear-gradient(135deg, #949493 0%, #d2abad 25%, #f9f4e8 50%, #a2c1b2 75%, #f9ba8e 100%);
+                background-size: 400% 400%;
+                animation: gradientShift 12s ease infinite;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            .background-particles {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+            }
+
+            .particle {
+                position: absolute;
+                width: 3px;
+                height: 3px;
+                border-radius: 50%;
+                opacity: 0.4;
+            }
+
+            .particle:nth-child(4n+1) { background: #d2abad; }
+            .particle:nth-child(4n+2) { background: #f9ba8e; }
+            .particle:nth-child(4n+3) { background: #a2c1b2; }
+            .particle:nth-child(4n+4) { background: #949493; }
+
+            .calculator-container {
+                background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+                backdrop-filter: blur(25px);
+                -webkit-backdrop-filter: blur(25px);
+                border-radius: 25px;
+                max-height: 900px;
+                box-shadow: 0 30px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.2) inset;
+                border: 1px solid rgba(255,255,255,0.3);
+                width: 90%;
+                max-width: 950px;
+                overflow: hidden;
+                position: relative;
+                transform: scale(0.9) translateY(20px);
+                opacity: 0;
+                animation: containerLoad 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            }
+
+            .back-button {
+                position: absolute;
+                top: 25px;
+                left: 25px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border: 1px solid rgba(255,255,255,0.3);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2) inset;
+                z-index: 10;
+                color: #666;
+            }
+
+            .back-button:hover {
+                transform: scale(1.1) translateY(-2px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.3) inset;
+                background: linear-gradient(145deg, rgba(210, 171, 173, 0.9) 0%, rgba(162, 193, 178, 0.8) 100%);
+                color: #333;
+            }
+
+            .back-button:active {
+                transform: scale(1.05);
+            }
+
+            .header {
+                background: linear-gradient( 45deg,#fde2e2, #fabebc);
+                padding: 70px 40px 50px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+                animation: shimmer 8s ease-in-out infinite;
+            }
+
+            .header::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+            }
+
+            .header h1 {
+                color: #333;
+                font-size: 3.2rem;
+                font-weight: 700;
+                text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+                position: relative;
+                z-index: 2;
+                margin-bottom: 15px;
+                background: linear-gradient(135deg, #333, #555);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .header-subtitle {
+                color: #666;
+                font-size: 1.3rem;
+                font-weight: 500;
+                opacity: 0.9;
+                position: relative;
+                z-index: 2;
+                line-height: 1.6;
+            }
+
+            .conversion-section {
+                padding: 10px 20px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 35px;
+            }
+
+            .conversion-row {
+                display: flex;
+                flex-direction: column;
+                background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.5) 100%);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: #444;
+                padding: 30px;
+                border-radius: 25px;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.3) inset;
+                border: 1px solid rgba(255,255,255,0.2);
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .conversion-row:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.4) inset;
+            }
+
+            .conversion-row::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #d2abad, #f9ba8e, #a2c1b2);
+                opacity: 0.6;
+            }
+
+            .conversion-label {
+                font-size: 1.4rem;
+                font-weight: 600;
+                margin-bottom: 20px;
+                color: #333;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .conversion-label::before {
+                content: '';
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #d2abad, #a2c1b2);
+            }
+
+            .conversion-value {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                color: #222;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                font-family: 'SF Pro Display', monospace;
+                letter-spacing: -0.5px;
+            }
+
+            .conversion-unit {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                font-size: 1.1rem;
+                font-weight: 500;
+            }
+
+            .unit-symbol {
+                font-weight: 600;
+                color: #666;
+                min-width: 30px;
+            }
+
+            .unit-dropdown {
+                background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.3);
+                color: #555;
+                padding: 12px 18px;
+                border-radius: 15px;
+                cursor: pointer;
+                font-size: 0.95rem;
+                font-weight: 500;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2) inset;
+                transition: all 0.3s ease;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23666' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 12px center;
+                background-repeat: no-repeat;
+                background-size: 16px;
+                padding-right: 40px;
+            }
+
+            .unit-dropdown:hover {
+                border-color: rgba(210, 171, 173, 0.5);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            }
+
+            .unit-dropdown:focus {
+                outline: none;
+                border-color: rgba(210, 171, 173, 0.7);
+                box-shadow: 0 0 0 3px rgba(210, 171, 173, 0.2);
+            }
+
+            .unit-dropdown option {
+                background: #fff;
+                color: #555;
+                padding: 10px;
+            }
+
+            .calculator-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+                padding: 10px;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .calc-btn {
+                aspect-ratio: 1;
+                border: none;
+                border-radius: 20px;
+                font-size: 1.5rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255,255,255,0.2) inset;
+                position: relative;
+                overflow: hidden;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .calc-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .calc-btn:hover::before {
+                opacity: 1;
+            }
+
+            .calc-btn.number {
+                background: linear-gradient(145deg, rgba(167, 204, 184, 0.3), rgba(167, 204, 184, 0.2));
+                color: #444;
+                border: 1px solid rgba(167, 204, 184, 0.3);
+            }
+
+            .calc-btn.number:hover {
+                background: linear-gradient(145deg, rgba(167, 204, 184, 0.4), rgba(167, 204, 184, 0.3));
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 15px 30px rgba(167, 204, 184, 0.3), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            }
+
+            .calc-btn.operation {
+                background: linear-gradient(145deg, rgba(249, 186, 142, 0.3), rgba(249, 186, 142, 0.2));
+                color: #444;
+                border: 1px solid rgba(249, 186, 142, 0.3);
+            }
+
+            .calc-btn.operation:hover {
+                background: linear-gradient(145deg, rgba(249, 186, 142, 0.4), rgba(249, 186, 142, 0.3));
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 15px 30px rgba(249, 186, 142, 0.3), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            }
+
+            .calc-btn.primary {
+                background: linear-gradient(145deg, rgba(210, 171, 173, 0.4), rgba(162, 193, 178, 0.4));
+                color: #333;
+                border: 1px solid rgba(210, 171, 173, 0.3);
+                font-weight: 700;
+                grid-column: span 2;
+            }
+
+            .calc-btn.primary:hover {
+                background: linear-gradient(145deg, rgba(210, 171, 173, 0.5), rgba(162, 193, 178, 0.5));
+                transform: translateY(-5px) scale(1.02);
+                box-shadow: 0 20px 40px rgba(210, 171, 173, 0.4), 0 0 0 1px rgba(255,255,255,0.4) inset;
+            }
+
+            .calc-btn.clear {
+                background: linear-gradient(145deg, rgba(210, 171, 173, 0.3), rgba(210, 171, 173, 0.2));
+                color: #444;
+                border: 1px solid rgba(210, 171, 173, 0.3);
+            }
+
+            .calc-btn.clear:hover {
+                background: linear-gradient(145deg, rgba(210, 171, 173, 0.4), rgba(210, 171, 173, 0.3));
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 15px 30px rgba(210, 171, 173, 0.3), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            }
+
+            .calc-btn:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+
+            /* Enhanced animations */
+            @keyframes gradientShift {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            @keyframes shimmer {
+                0%, 100% { transform: translateX(-100px) translateY(-100px); }
+                50% { transform: translateX(100px) translateY(100px); }
+            }
+
+            @keyframes containerLoad {
+                to {
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes sparkle {
+                0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+                50% { opacity: 0.6; transform: scale(1) rotate(180deg); }
+            }
+
+            /* Responsive design */
+            @media (max-width: 768px) {
+                .conversion-section {
+                    grid-template-columns: 1fr;
+                    gap: 25px;
+                    padding: 20px;
+                }
+                
+                .calculator-grid {
+                    padding: 20px 20px;
+                    gap: 12px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .calculator-container {
+                    max-width: 100%;
+                    margin: 10px;
+                    border-radius: 25px;
+                }
+
+                .header {
+                    padding: 60px 30px 40px;
+                }
+
+                .header h1 {
+                    font-size: 2.2rem;
+                }
+
+                .header-subtitle {
+                    font-size: 1.1rem;
+                }
+
+                .conversion-value {
+                    font-size: 2rem;
+                }
+
+                .calc-btn {
+                    font-size: 1.3rem;
+                }
+
+                .back-button {
+                    width: 45px;
+                    height: 45px;
+                    top: 20px;
+                    left: 20px;
+                }
+            }
+        </style>
+    </head>
+
+
+
+
+
+
+    <!-- ‼️‼️‼️‼️‼️‼️‼️‼️
+    START NA HERE
+    ‼️‼️‼️‼️‼️‼️‼️‼️‼️ -->
+
+
+
+    <body>
+        <!-- Background particles -->
+        <div class="background-particles" id="particles"></div>
+
+        <div class="calculator-container">
+            <!-- Back Button -->
+            <button class="back-button" onclick="goBack()" title="Go Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m12 19-7-7 7-7"/>
+                    <path d="M19 12H5"/>
+                </svg>
+            </button>
+
+            <!-- Header -->
+            <div class="header">
+                <h1>Area Converter</h1>
+                <div class="header-subtitle">Convert between different area units with precision and elegance</div>
+            </div>
+
+            <!-- Conversion Section -->
+            <div class="conversion-section">
+                <!-- From -->
+                <div class="conversion-row">
+                    <div class="conversion-label">From</div>
+                    <div class="conversion-value" id="fromValue">0</div>
+                    <div class="conversion-unit">
+                        <span class="unit-symbol">m²</span>
+                        <select class="unit-dropdown" id="fromUnit">
+                            <option value="acre">Acres</option>
+                            <option value="ares">Ares</option>
+                            <option value="hectare">Hectares</option>
+                            <option value="cm2">Square centimeters</option>
+                            <option value="ft2">Square feets</option>
+                            <option value="in2">Square inches</option>
+                            <option value="m2">Square meters</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- To -->
+                <div class="conversion-row">
+                    <div class="conversion-label">To</div>
+                    <div class="conversion-value" id="toValue">0</div>
+                    <div class="conversion-unit">
+                        <span class="unit-symbol">km²</span>
+                        <select class="unit-dropdown" id="toUnit">
+                        <option value="acre">Acres</option>
+                            <option value="ares">Ares</option>
+                            <option value="hectare">Hectares</option>
+                            <option value="cm2">Square centimeters</option>
+                            <option value="ft2">Square feets</option>
+                            <option value="in2">Square inches</option>
+                            <option value="m2">Square meters</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculator Grid -->
+            <div class="calculator-grid">
+                <!-- Row 1 -->
+                <button class="calc-btn number" onclick="inputNumber('7')">7</button>
+                <button class="calc-btn number" onclick="inputNumber('8')">8</button>
+                <button class="calc-btn number" onclick="inputNumber('9')">9</button>
+                <button class="calc-btn clear" onclick="clearInput()">C</button>
+
+                <!-- Row 2 -->
+                <button class="calc-btn number" onclick="inputNumber('4')">4</button>
+                <button class="calc-btn number" onclick="inputNumber('5')">5</button>
+                <button class="calc-btn number" onclick="inputNumber('6')">6</button>
+                <button class="calc-btn operation" onclick="backspace()">⌫</button>
+
+                <!-- Row 3 -->
+                <button class="calc-btn number" onclick="inputNumber('1')">1</button>
+                <button class="calc-btn number" onclick="inputNumber('2')">2</button>
+                <button class="calc-btn number" onclick="inputNumber('3')">3</button>
+                <button class="calc-btn operation" onclick="toggleSign()">+/-</button>
+
+                <!-- Row 4 -->
+                <button class="calc-btn number" onclick="inputNumber('.')">.</button>
+                <button class="calc-btn number" onclick="inputNumber('0')">0</button>
+            </div>
+        </div>
+
+        <script>
+            let currentInput = '0';
+            let isInputting = false;
+
+            // Enhanced conversion factors to square meters
+            const conversionFactors = {
+                acre: 4046.86,         // 1 acre = 4046.86 m²
+                ares: 100,             // 1 are = 100 m²
+                hectare: 10000,        // 1 hectare = 10000 m²
+                cm2: 0.0001,           // 1 cm² = 0.0001 m²
+                ft2: 0.092903,         // 1 ft² = 0.092903 m²
+                in2: 0.00064516,       // 1 in² = 0.00064516 m²
+                m2: 1                  // 1 m² = 1 m²
+                };
+
+
+            // Unit symbols for display
+        const unitSymbols = {
+                'acre': 'ac',
+                'ares': 'a',
+                'hectare': 'ha',
+                'cm2': 'cm²',
+                'ft2': 'ft²',
+                'in2': 'in²',
+                'm2': 'm²'
+                };
+
+
+            function init() {
+                createBackgroundParticles();
+                updateConversion();
+            }
+
+            function createBackgroundParticles() {
+                const particlesContainer = document.getElementById('particles');
+                for (let i = 0; i < 25; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animation = `sparkle ${4 + Math.random() * 6}s ease-in-out infinite`;
+                    particle.style.animationDelay = Math.random() * 10 + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            function goBack() {
+                window.location.href = 'home.html';
+            }
+
+            function inputNumber(num) {
+                const fromValueElement = document.getElementById('fromValue');
+                
+                if (!isInputting) {
+                    currentInput = '';
+                    isInputting = true;
+                }
+                
+                if (num === '.' && currentInput.includes('.')) {
+                    return;
+                }
+                
+                currentInput += num;
+                fromValueElement.textContent = currentInput;
+                
+                updateConversion();
+            }
+
+            function clearInput() {
+                currentInput = '0';
+                isInputting = false;
+                document.getElementById('fromValue').textContent = currentInput;
+                updateConversion();
+            }
+
+            function updateConversion() {
+                const fromUnit = document.getElementById('fromUnit').value;
+                const toUnit = document.getElementById('toUnit').value;
+                const fromValueElement = document.getElementById('fromValue');
+                const toValueElement = document.getElementById('toValue');
+                
+                // Update unit symbols
+                const fromSymbol = document.querySelector('.conversion-row:first-child .unit-symbol');
+                const toSymbol = document.querySelector('.conversion-row:last-child .unit-symbol');
+                fromSymbol.textContent = unitSymbols[fromUnit];
+                toSymbol.textContent = unitSymbols[toUnit];
+                
+                const inputValue = parseFloat(currentInput) || 0;
+                
+                // Convert to square meters first, then to target unit
+                const metersSquared = inputValue * conversionFactors[fromUnit];
+                const convertedValue = metersSquared / conversionFactors[toUnit];
+                
+                // Enhanced formatting with better precision
+                let formattedResult;
+                if (convertedValue === 0) {
+                    formattedResult = '0';
+                } else if (Math.abs(convertedValue) < 0.000001) {
+                    formattedResult = convertedValue.toExponential(2);
+                } else if (Math.abs(convertedValue) < 0.001) {
+                    formattedResult = convertedValue.toFixed(8).replace(/\.?0+$/, '');
+                } else if (Math.abs(convertedValue) < 1) {
+                    formattedResult = convertedValue.toFixed(6).replace(/\.?0+$/, '');
+                } else if (Math.abs(convertedValue) > 1000000) {
+                    formattedResult = convertedValue.toExponential(3);
+                } else {
+                    formattedResult = convertedValue.toLocaleString(undefined, {
+                        maximumFractionDigits: 4,
+                        minimumFractionDigits: 0
+                    });
+                }
+                
+                toValueElement.textContent = formattedResult;
+            }
+
+            function backspace() {
+                if (currentInput.length > 1) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                document.getElementById('fromValue').textContent = currentInput;
+                updateConversion();
+            }
+
+            function toggleSign() {
+                if (currentInput === '0') return;
+                
+                if (currentInput.startsWith('-')) {
+                    currentInput = currentInput.substring(1);
+                } else {
+                    currentInput = '-' + currentInput;
+                }
+                document.getElementById('fromValue').textContent = currentInput;
+                updateConversion();
+            }
+
+            function calculate() {
+                updateConversion();
+                // Add visual feedback
+                const enterBtn = document.querySelector('.calc-btn.primary');
+                enterBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    enterBtn.style.transform = '';
+                }, 150);
+            }
+            
+            // Event listeners for unit changes
+            document.getElementById('fromUnit').addEventListener('change', updateConversion);
+            document.getElementById('toUnit').addEventListener('change', updateConversion);
+
+            // Initialize when DOM is loaded
+            document.addEventListener('DOMContentLoaded', init);
+
+    // 🟢 NEW: Keyboard support
+        document.addEventListener("keydown", function(event) {
+        if (event.key >= "0" && event.key <= "9") {
+            inputNumber(event.key);
+        } else if (event.key === ".") {
+            inputNumber(".");
+        } else if (event.key === "Backspace") {
+            backspace();
+        } else if (event.key === "c" || event.key === "C") {
+            clearInput();
+        } else if (event.key === "-") {
+            toggleSign();
+        }
+        });
+
+
+
+        </script>
+    </body>
+    </html>
+    </body>
+    </html>

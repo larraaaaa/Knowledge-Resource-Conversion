@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn More | KRC</title>
+<style>
+    /* ===== GENERAL STYLES ===== */
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+
+    body {
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #fff9ef 0%, #f5f1e8 50%, #ede7dd 100%);
+    min-height: 100vh;
+    color: #333;
+    overflow-x: hidden;
+    }
+
+    /* Enhanced animated background particles */
+    .bg-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    }
+
+    .particle {
+    position: absolute;
+    background: rgba(225, 152, 160, 0.1);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+    }
+
+    .particle:nth-child(odd) {
+    background: rgba(167, 204, 184, 0.08);
+    animation-direction: reverse;
+    }
+
+    .particle:nth-child(3n) {
+    background: rgba(249, 186, 142, 0.06);
+    }
+
+    .back-button {
+        position: fixed;
+        top: 25px;
+        left: 25px;
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2) inset;
+        z-index: 1000;
+        color: #666;
+    }
+
+    .back-button:hover {
+        transform: scale(1.1) translateY(-2px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.3) inset;
+        background: linear-gradient(145deg, rgba(210, 171, 173, 0.9) 0%, rgba(162, 193, 178, 0.8) 100%);
+        border-color: rgba(210, 171, 173, 0.5);
+        color: #333;
+    }
+
+    .back-button:active {
+        transform: scale(1.05) translateY(-1px);
+    }
+
+    @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+    50% { transform: translateY(-30px) rotate(180deg); opacity: 0.8; }
+    }
+
+    /* Main content container */
+    .content {
+    max-width: 850px;
+    margin: 30px auto;
+    padding: 0 20px;
+    position: relative;
+    }
+
+    /* Hero section with enhanced animations */
+    .hero {
+    text-align: center;
+    margin-bottom: 50px;
+    opacity: 0;
+    animation: fadeInUp 1.2s ease-out 0.3s forwards;
+    }
+
+    .hero h1 {
+    background: linear-gradient(135deg, #d2abad, #f9ba8e, #a7ccb8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    position: relative;
+    animation: titlePulse 4s ease-in-out infinite;
+    }
+
+    @keyframes titlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    }
+
+    .hero h1::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #d2abad, #f9ba8e);
+    border-radius: 2px;
+    animation: underlineGrow 1.5s ease-out 1s forwards;
+    transform-origin: center;
+    scale: 0;
+    }
+
+    @keyframes underlineGrow {
+    to { scale: 1; transform: translateX(-50%); }
+    }
+
+    .hero-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeIn 1s ease-out 1.5s forwards;
+    }
+
+    /* Enhanced card system */
+    .card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeInUp 0.8s ease-out forwards;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.15),
+        0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #d2abad, #f9ba8e, #a7ccb8, #a2c1b2);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -200% 0; }
+    }
+
+    /* Staggered animation delays */
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.4s; }
+    .card:nth-child(4) { animation-delay: 0.6s; }
+    .card:nth-child(5) { animation-delay: 0.8s; }
+    .card:nth-child(6) { animation-delay: 1s; }
+
+    .card h2 {
+    color: #d2abad;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    }
+
+    .card h2::before {
+    content: '';
+    width: 8px;
+    height: 30px;
+    background: linear-gradient(135deg, #a7ccb8, #f9ba8e);
+    border-radius: 4px;
+    animation: barGrow 0.6s ease-out forwards;
+    transform-origin: bottom;
+    scale: 0 1;
+    }
+
+    @keyframes barGrow {
+    to { scale: 1 1; }
+    }
+
+    .card p {
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+    }
+
+    /* Enhanced feature grid with better hover effects */
+    .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    list-style: none;
+    padding: 0;
+    }
+
+    .feature-item {
+    background: linear-gradient(135deg, #a7ccb8, #a2c1b2);
+    color: white;
+    padding: 25px 20px;
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(167, 204, 184, 0.3);
+    transform-style: preserve-3d;
+    }
+
+    .feature-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+    }
+
+    .feature-item:hover::before {
+    left: 100%;
+    }
+
+    .feature-item:hover {
+    transform: translateY(-8px) scale(1.03) rotateX(5deg);
+    box-shadow: 0 15px 40px rgba(167, 204, 184, 0.5);
+    }
+
+    /* Enhanced benefits section */
+    .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    list-style: none;
+    padding: 0;
+    }
+
+    .benefit-item {
+    background: linear-gradient(135deg, #f9ba8e, #d2abad);
+    color: white;
+    padding: 30px 25px;
+    border-radius: 20px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(249, 186, 142, 0.3);
+    cursor: pointer;
+    }
+
+    .benefit-item::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    transition: all 0.4s ease;
+    }
+
+    .benefit-item:hover {
+    transform: translateY(-10px) rotate(2deg);
+    box-shadow: 0 20px 50px rgba(249, 186, 142, 0.5);
+    }
+
+    .benefit-item:hover::after {
+    top: -20%;
+    right: -20%;
+    }
+
+    /* Enhanced about section */
+    .about-section {
+    background: linear-gradient(135deg, #a2c1b2, #a7ccb8);
+    color: white;
+    border-radius: 24px;
+    padding: 50px 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(162, 193, 178, 0.3);
+    }
+
+    .about-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="30" cy="30" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="70" cy="30" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="10" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.6;
+    animation: patternMove 20s linear infinite;
+    }
+
+    @keyframes patternMove {
+    from { transform: translateX(0) translateY(0); }
+    to { transform: translateX(100px) translateY(100px); }
+    }
+
+    .about-section h2 {
+    color: white;
+    }
+
+    .about-section h2::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    }
+
+    .about-section p {
+    color: rgba(255, 255, 255, 0.95);
+    position: relative;
+    z-index: 1;
+    font-size: 1.1rem;
+    }
+
+    /* Enhanced animations */
+    @keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
+
+    @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+    }
+
+    /* Add loading animation */
+    .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #fff9ef, #f5f1e8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+    }
+
+    .loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    }
+
+    .loader {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(210, 171, 173, 0.3);
+    border-top: 3px solid #d2abad;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
+
+    /* Improved responsive design */
+    @media (max-width: 768px) {
+    .content {
+        padding: 20px 15px;
+        margin: 20px auto;
+    }
+
+    .card {
+        padding: 30px 20px;
+        border-radius: 20px;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .feature-grid,
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .about-section {
+        padding: 40px 25px;
+    }
+    }
+
+    @media (max-width: 480px) {
+    .card {
+        padding: 25px 15px;
+        margin-bottom: 20px;
+    }
+
+    .card h2 {
+        font-size: 1.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .feature-item,
+    .benefit-item {
+        padding: 20px 15px;
+    }
+    }
+
+    /* Enhanced scroll animations */
+    .scroll-reveal {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+    }
+
+    /* Add smooth scrolling for better UX */
+    html {
+    scroll-behavior: smooth;
+    }
+
+    /* Focus states for accessibility */
+    .feature-item:focus,
+    .benefit-item:focus {
+    outline: 2px solid #d2abad;
+    outline-offset: 2px;
+    }
+
+    /* Reduced motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    }
+</style>
+</head>
+<body>
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loader">
+    <div class="loader"></div>
+</div>
+
+<!-- Animated background -->
+<div class="bg-particles" id="particles"></div>
+
+<!-- Back Button -->
+<button class="back-button" onclick="goBack()" title="Go Back">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="m12 19-7-7 7-7"/>
+        <path d="M19 12H5"/>
+    </svg>
+</button>
+
+<div class="content">
+    <div class="hero">
+    <h1>Learn More About KRC</h1>
+    <p class="hero-subtitle">Your ultimate companion for precise unit conversions, designed with simplicity and accuracy in mind.</p>
+    </div>
+    
+    <div class="card scroll-reveal">
+    <h2>What is KRC?</h2>
+    <p>KRC stands for <strong>Knowledge Resource Conversion</strong>, a cutting-edge web application designed to provide a simple and convenient way to convert units of measurement. Whether you're a student tackling complex equations, a professional working with international specifications, or just someone who needs quick conversions for everyday tasks, KRC is your reliable digital companion.</p>
+    </div>
+    
+    <div class="card scroll-reveal">
+    <h2>What We Offer</h2>
+    <p>KRC offers a comprehensive range of conversions across multiple categories:</p>
+    <ul class="feature-grid">
+        <li class="feature-item" tabindex="0">📐 Area Conversions<br><small>Convert square meter, acres, hectares, and more</small></li>
+        <li class="feature-item" tabindex="0">🏋️‍♀️ BMI Calculator<br><small>Calculate Body Mass Index and health indicators</small></li>
+        <li class="feature-item" tabindex="0">⚡ Energy Conversion<br><small>Convert joules, calories, BTU, and kilowatt-hours</small></li>
+        <li class="feature-item" tabindex="0">📏 Length Conversion<br><small>Convert between meters, feet, inches, kilometers, and more</small></li>
+        <li class="feature-item" tabindex="0">⛽ Fuel Economy<br><small>Convert MPG, L/100km, and other fuel efficiency units</small></li>
+        <li class="feature-item" tabindex="0">➕ And many more!<br><small>A comprehensive set of conversions for everyday needs</small></li>
+    </ul>
+    </div>
+    
+    <div class="card scroll-reveal">
+    <h2>How to Use KRC</h2>
+    <p>Using KRC is incredibly straightforward! Our intuitive interface guides you through the conversion process in just a few simple steps: select your unit category, enter your value, choose the target conversion type, and let KRC deliver instant, accurate results. It's that easy!</p>
+    </div>
+    
+    <div class="card scroll-reveal">
+    <h2>Benefits of Using KRC</h2>
+    <ul class="benefits-grid">
+        <li class="benefit-item" tabindex="0">
+        <strong>🎯 Precision & Accuracy</strong><br>
+        KRC uses scientifically precise formulas and algorithms to ensure every conversion is accurate to the highest degree.
+        </li>
+        <li class="benefit-item" tabindex="0">
+        <strong>🎨 Intuitive Design</strong><br>
+        Our clean, modern interface makes conversions fast and effortless, even for first-time users.
+        </li>
+        <li class="benefit-item" tabindex="0">
+        <strong>🌐 Always Available</strong><br>
+        Access KRC from anywhere, anytime. Our web-based platform works seamlessly across all devices and browsers.
+        </li>
+        <li class="benefit-item" tabindex="0">
+            <strong>🌟 Free to Use</strong><br>
+            KRC is completely free, with no hidden costs or subscription fees. Access all our features without any limitations.
+        </li>
+    </ul>
+    </div>
+    
+    <div class="card about-section scroll-reveal">
+    <h2>About Us</h2>
+    <p>At <strong>KRC</strong>, our mission is to bridge the gap between complexity and simplicity in unit conversions. We believe that accurate measurements should be accessible to everyone, from students and educators to professionals and curious minds. Our team is committed to delivering exceptional user experiences while maintaining the highest standards of precision and reliability. We continuously evolve our platform based on user feedback and emerging needs in the global community.</p>
+    </div>
+</div>
+
+<script>
+    // Enhanced particle system
+    function createParticles() {
+    const container = document.getElementById('particles');
+    const particleCount = 20; // Increased for better effect
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 80 + 30; // Varied sizes
+        const posX = Math.random() * window.innerWidth;
+        const posY = Math.random() * window.innerHeight;
+        const delay = Math.random() * 8;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}px`;
+        particle.style.top = `${posY}px`;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.animationDuration = `${8 + Math.random() * 6}s`;
+        
+        container.appendChild(particle);
+    }
+    }
+
+    function goBack() {
+            window.location.href = 'index.html';
+        }
+
+    // Enhanced scroll reveal with intersection observer
+    function setupScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+        }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+        observer.observe(el);
+    });
+    }
+
+    // Loading animation
+    function hideLoader() {
+    const loader = document.getElementById('loader');
+    setTimeout(() => {
+        loader.classList.add('hidden');
+    }, 1000);
+    }
+
+    // Enhanced initialization
+    document.addEventListener('DOMContentLoaded', () => {
+    createParticles();
+    setupScrollReveal();
+    hideLoader();
+    
+    // Add staggered animation to feature items
+    const featureItems = document.querySelectorAll('.feature-item');
+    featureItems.forEach((item, index) => {
+        item.style.animationDelay = `${0.1 * index}s`;
+    });
+    
+    // Add staggered animation to benefit items
+    const benefitItems = document.querySelectorAll('.benefit-item');
+    benefitItems.forEach((item, index) => {
+        item.style.animationDelay = `${0.15 * index}s`;
+    });
+    });
+
+    // Optimized particle repositioning
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const container = document.getElementById('particles');
+        container.innerHTML = '';
+        createParticles();
+    }, 250);
+    });
+
+    // Add keyboard navigation support
+    document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        document.body.classList.add('keyboard-navigation');
+    }
+    });
+
+    document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-navigation');
+    });
+
+    // Performance optimization: reduce animations when page is not visible
+    document.addEventListener('visibilitychange', () => {
+    const particles = document.querySelectorAll('.particle');
+    if (document.hidden) {
+        particles.forEach(p => p.style.animationPlayState = 'paused');
+    } else {
+        particles.forEach(p => p.style.animationPlayState = 'running');
+    }
+    });
+</script>
+</body>
+</html>
